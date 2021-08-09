@@ -30,6 +30,7 @@ public class ProgramManager {
     List<Solution<Lesson>> population;
     Solution<Lesson> timeTableSolution;
     Evolutionary<Lesson> evolutionary = null;
+    Thread thread = null;
 
     public static enum systemSetting{
         IS_FILE_LOADED(false),SOLUTION_FOUND(false);
@@ -118,12 +119,25 @@ public class ProgramManager {
 
     private void runAlgorithm(int generations,int interval) throws ValidationException {
         if(checkIfFileLoaded()) {
-            evolutionary = new Evolutionary();
-            timeTable.setGenerations(generations);
-            timeTable.setGenerationsInterval(interval);
-            evolutionary.run(timeTable);
-            timeTableSolution = evolutionary.getGlobalBestSolution().getSolution();
-            systemSetting.SOLUTION_FOUND.status=true;
+            if(thread !=null && thread.isAlive()) {
+                thread.stop();
+            }
+            thread = new Thread(new Runnable() {
+                @Override
+                public void run() {
+                    evolutionary = new Evolutionary();
+                    try {
+                        timeTable.setGenerations(generations);
+                        timeTable.setGenerationsInterval(interval);
+                        evolutionary.run(timeTable);
+                        timeTableSolution = evolutionary.getGlobalBestSolution().getSolution();
+                        systemSetting.SOLUTION_FOUND.status = true;
+                    } catch (ValidationException e) {
+                        System.out.println(e.getMessage());
+                    }
+                }
+            });
+            thread.start();
         }
     }
 

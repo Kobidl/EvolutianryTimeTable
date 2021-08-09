@@ -145,7 +145,7 @@ public class TimeTableDataSet implements EvolutionDataSet<Lesson>, Serializable 
     }
 
     public void setGenerationsInterval(int generationsInterval) throws ValidationException {
-        if(generationsInterval < this.generations)
+        if(generationsInterval <= this.generations)
             this.generationsInterval = generationsInterval;
         else
             throw new ValidationException("generation interval bigger than generations");
